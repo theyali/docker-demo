@@ -168,3 +168,41 @@ services:
 
 volumes:
   postgres_data:
+
+## 4. Set Up Nginx
+sudo apt-get install nginx
+sudo nano /etc/nginx/sites-available/yourproject
+
+server {
+    listen 80;
+    server_name your_domain_or_IP;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static/ {
+        alias /path/to/your/static/files/;
+    }
+
+    location /media/ {
+        alias /path/to/your/media/files/;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/yourproject /etc/nginx/sites-enabled/
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+sudo docker-compose up --build -d
+
+docker ps
+docker-compose logs
+
+
+
